@@ -40,7 +40,7 @@ def shift_code():
 def description():
     """
     grabs the description of the shift code
-    :return: list
+    :return: string
     """
 
     des_list = []
@@ -57,14 +57,27 @@ def description():
 
 
 def send_to_telegram(group, text):
-    code = requests.get('https://api.telegram.org/bot924108836:'
-                        'AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
-                        f'sendMessage?chat_id={group}'
-                        '=&text={}'.format(text))
-    return code
+    """
+    sends the message to telegram
+    :param group: choose what telegram group to send message to
+    :param text: allows you to choose what message to send
+    :return: message
+    """
+    message = requests.get(
+        'https://api.telegram.org/bot924108836:'
+        'AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
+        f'sendMessage?chat_id={group}'
+        '=&text={}'.format(text)
+    )
+
+    return message
 
 
 def main():
+    """
+    main functionality
+    :return: None
+    """
     text = description()
     code = shift_code()
 
