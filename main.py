@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup as bs
 
 BRODERLANDS_BOT = -296659970
 TEST = -380161856
+BOT_ID = '924108836:AAHZykalHR8INIwplZERIwibUtDnUUdQN-8'
 
 
 # def date():
@@ -31,7 +32,8 @@ def shift_code():
     :TODO: compare old shift code to new shift code
     :return: string
     """
-    compare_list = []
+    # send = False
+    # compare_list = []
 
     code = build_soup().item.title.text
 
@@ -43,9 +45,14 @@ def description():
     grabs the description of the shift code
     :return: string
     """
+    # if code returns true then description will be sent
+    # if shift_code():
 
-    des_list = []
     des = build_soup().item.description.text.split('<br>')
+    des_list = []
+
+    # Parses through the description and pulls out
+    # necessary information needed to send the message
     for item in des:
         des_list.append(item)
     note = des_list[-1].split(':')
@@ -65,8 +72,7 @@ def send_to_telegram(group, text):
     :return: message
     """
     message = requests.get(
-        'https://api.telegram.org/bot924108836:'
-        'AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
+        'https://api.telegram.org/bot924108836:AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
         f'sendMessage?chat_id={group}'
         '=&text={}'.format(text)
     )
@@ -88,6 +94,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
