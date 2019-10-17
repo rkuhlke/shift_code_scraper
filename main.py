@@ -28,6 +28,7 @@ def build_soup():
 def shift_code():
     """
     grabs the shift code
+    :TODO: compare old shift code to new shift code
     :return: string
     """
     compare_list = []
