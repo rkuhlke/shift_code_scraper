@@ -2,12 +2,12 @@
 Borderlands Web Scraper
 """
 import requests
+import time
 
 from bs4 import BeautifulSoup as bs
 
 BRODERLANDS_BOT = -296659970
 TEST = -380161856
-BOT_ID = '924108836:AAHZykalHR8INIwplZERIwibUtDnUUdQN-8'
 
 
 # def date():
@@ -32,9 +32,6 @@ def shift_code():
     :TODO: compare old shift code to new shift code
     :return: string
     """
-    # send = False
-    # compare_list = []
-
     code = build_soup().item.title.text
 
     return code
@@ -48,20 +45,33 @@ def description():
     # if code returns true then description will be sent
     # if shift_code():
 
-    des = build_soup().item.description.text.split('<br>')
-    des_list = []
-
     # Parses through the description and pulls out
     # necessary information needed to send the message
+    des = build_soup().item.description.text.split('<br>')
+    des_list = []
     for item in des:
         des_list.append(item)
-    note = des_list[-1].split(':')
+
+    # grabs info from the description from web page
+    des_type = des_list[0].split(':')
+    expires = des_list[6].split(':', 1)
+    time = expires[1].split('T')
+    exact_time = time[1].split('-')
     reward = des_list[1].split(':')
     game = des_list[2].split(':')
 
-    string = f'Game: {game[1]}\nReward: {reward[1]}\nNote: {note[1]}'
+    # if the type is a shift code returns a shift code description
+    if des_type[1] == ' SHiFT Code' and game[1] == ' Borderlands 3':
+        string = f'New Shift Code!!!\n'\
+            f'Expires: {time[0]} at {exact_time[0]}\nShift Code: '
+        return string
 
-    return string
+    # if the type is a vip code returns vip code description
+    elif des_type[1] == ' VIP Code':
+        string = f'New VIP Code!!!\nReward: {reward[1]}'
+        return string
+
+    return ''
 
 
 def send_to_telegram(group, text):
@@ -88,8 +98,18 @@ def main():
     text = description()
     code = shift_code()
 
-    _code = send_to_telegram(TEST, code)
-    _description = send_to_telegram(TEST, text)
+    compare_list = [1]
+    code_list = [code]
+
+    if code_list != compare_list:
+        print('hi')
+        send_to_telegram(TEST, text)
+        send_to_telegram(TEST, code_list[0])
+        compare_list = code_list
+        shift_code()
+        while compare_list == code_list:
+            time.sleep(3600)
+            shift_code()
 
 
 if __name__ == '__main__':
