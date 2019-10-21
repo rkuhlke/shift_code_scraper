@@ -3,16 +3,12 @@ Borderlands Web Scraper
 """
 import requests
 import time
+import csv
 
 from bs4 import BeautifulSoup as bs
 
 BRODERLANDS_BOT = -296659970
 TEST = -380161856
-
-
-# def date():
-#     x = datetime.today()
-#     return x.strftime("%a, %d %b %Y")
 
 
 def build_soup():
@@ -28,13 +24,35 @@ def build_soup():
 
 def shift_code():
     """
-    grabs the shift code
-    :TODO: compare old shift code to new shift code
-    :return: string
+    grabs shift code and returns the code
+    :return: code
     """
-    code = build_soup().item.title.text
 
-    return code
+    # Parses through the description and pulls out
+    # necessary information needed to send the message
+    des = build_soup().item.description.text.split('<br>')
+    des_list = []
+
+    for item in des:
+        des_list.append(item)
+
+    # grabs info from the description from web page
+    code = des_list[4].split(':')
+    game = des_list[2].split(':')
+    des_type = des_list[0].split(':')
+    reward = des_list[1].split(':')
+
+    # if the type is a vip code returns vip code
+    if des_type[1] == ' SHiFT Code' and game[1] == ' Borderlands 3':
+        string = f'{code[1]}'
+        return string
+
+    # if the type is a vip code returns vip code
+    elif des_type[1] == ' VIP Code':
+        string = f'New VIP Code!!!\nReward: {reward[1]}'
+        return string
+
+    return ''
 
 
 def description():
@@ -59,8 +77,8 @@ def description():
 
     # if the type is a shift code returns a shift code description
     if des_type[1] == ' SHiFT Code' and game[1] == ' Borderlands 3':
-        string = f'New Shift Code!!!\nReward: {reward[1]}'\
-            f'Expires: {expire_time[0]} at {exact_time[0]}\nShift Code: '
+        string = f'New Shift Code!!!\nReward: {reward[1]}\n'\
+            f'Expires: {expire_time[0]} at {exact_time[1]}\nShift Code: '
         return string
 
     # if the type is a vip code returns vip code description
@@ -78,6 +96,8 @@ def send_to_telegram(group, text):
     :param text: allows you to choose what message to send
     :return: message
     """
+
+    # sends a message to telegram
     message = requests.get(
         'https://api.telegram.org/bot924108836:AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
         f'sendMessage?chat_id={group}'
