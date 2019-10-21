@@ -119,6 +119,7 @@ def main():
 
     # runs infinitely if codes are the same
     while True:
+
         # grabs code and puts it into a list
         code_list = [code]
 
@@ -133,6 +134,7 @@ def main():
 
             # reruns the program to see if anything updates
             shift_code()
+
         else:
             print('hi')
             # waits an hour before running again
