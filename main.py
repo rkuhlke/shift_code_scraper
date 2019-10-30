@@ -4,6 +4,7 @@ Borderlands Web Scraper
 import requests
 import time
 
+from datetime import datetime
 from bs4 import BeautifulSoup as bs
 
 BRODERLANDS_BOT = -296659970
@@ -132,7 +133,8 @@ def main():
             shift_code()
 
         else:
-            print('hi')
+            print('Scanned at: ', datetime.now())
+            print('_______________________________________')
             # waits an hour before running again
             time.sleep(3600)
 
