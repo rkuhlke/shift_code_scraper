@@ -3,7 +3,6 @@ Borderlands Web Scraper
 """
 import requests
 import time
-import csv
 
 from bs4 import BeautifulSoup as bs
 
@@ -37,18 +36,17 @@ def shift_code():
         des_list.append(item)
 
     # grabs info from the description from web page
-    code = des_list[4].split(':')
-    game = des_list[2].split(':')
-    des_type = des_list[0].split(':')
+    code = des_list[3].split(':')
+    game_or_type = des_list[0].split(':')
     reward = des_list[1].split(':')
 
     # if the type is a vip code returns vip code
-    if des_type[1] == ' SHiFT Code' and game[1] == ' Borderlands 3':
+    if game_or_type[1] == ' Borderlands 3':
         string = f'{code[1]}'
         return string
 
     # if the type is a vip code returns vip code
-    elif des_type[1] == ' VIP Code':
+    elif game_or_type[1] == ' VIP Vault':
         string = f'New VIP Code!!!\nReward: {reward[1]}'
         return string
 
@@ -68,22 +66,20 @@ def description():
         des_list.append(item)
 
     # grabs info from the description from web page
-    des_type = des_list[0].split(':')
-    expires = des_list[6].split(':', 1)
-    expire_time = expires[1].split('T')
-    exact_time = expire_time[1].split('-')
-    reward = des_list[1].split(':')
-    game = des_list[2].split(':')
+    expires = des_list[5].split(':', 1)
+    shift_code_reward = des_list[2].split(':')
+    vip_code_reward = des_list[1].split(':')
+    game_or_type = des_list[0].split(':')
 
     # if the type is a shift code returns a shift code description
-    if des_type[1] == ' SHiFT Code' and game[1] == ' Borderlands 3':
-        string = f'New Shift Code!!!\nReward: {reward[1]}\n'\
-            f'Expires: {expire_time[0]} at {exact_time[1]}\nShift Code: '
+    if game_or_type[1] == ' Borderlands 3':
+        string = f'New Shift Code!!!\nReward: {shift_code_reward[1]}\n'\
+            f'Expires: {expires[1]}\nShift Code: '
         return string
 
     # if the type is a vip code returns vip code description
-    elif des_type[1] == ' VIP Code':
-        string = f'New VIP Code!!!\nReward: {reward[1]}'
+    elif game_or_type[1] == ' VIP Vault':
+        string = f'New VIP Code!!!\nReward: {vip_code_reward[1]}'
         return string
 
     return ''
