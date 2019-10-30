@@ -1,6 +1,7 @@
 """
 Borderlands Web Scraper
 """
+import csv
 import requests
 import time
 
@@ -111,35 +112,16 @@ def main():
     """
     text = description()
     code = shift_code()
-
-    compare_list = [1]
-
-    # runs infinitely if codes are the same
-    while True:
-
-        # grabs code and puts it into a list
-        code_list = [code]
-
-        # if code is ever different
-        # new code will be sent to telegram
-        if code_list != compare_list:
-            send_to_telegram(TEST, text)
-            send_to_telegram(TEST, code_list[0])
-
-            # this makes it so the two lists become the same
-            compare_list[0] = code_list[0]
-
-            # reruns the program to see if anything updates
-            shift_code()
-
-        else:
-            print('Scanned at: ', datetime.now())
-            print('_______________________________________')
-            # waits an hour before running again
-            time.sleep(3600)
-
-            # continues the loop
-            continue
+    with open('shiftcode.csv', 'r') as csvfile:
+        csv_reader = csv.reader(csvfile, delimiter=',')
+        print('hi')
+        for rows in csv_reader:
+            if rows[0] != code:
+                print(rows[0])
+                send_to_telegram(TEST, text)
+                send_to_telegram(TEST, code)
+                with open('shiftcode.csv', 'w') as csv_writer:
+                    rows[0] = csv_writer.write(code)
 
 
 if __name__ == '__main__':
