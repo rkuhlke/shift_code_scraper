@@ -118,8 +118,8 @@ def main():
         for rows in csv_reader:
             if rows[0] != code:
                 print(rows[0])
-                send_to_telegram(TEST, text)
-                send_to_telegram(TEST, code)
+                send_to_telegram(BRODERLANDS_BOT, text)
+                send_to_telegram(BRODERLANDS_BOT, code)
                 with open('shiftcode.csv', 'w') as csv_writer:
                     rows[0] = csv_writer.write(code)
 
