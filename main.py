@@ -3,9 +3,6 @@ Borderlands Web Scraper
 """
 import csv
 import requests
-import time
-
-from datetime import datetime
 from bs4 import BeautifulSoup as bs
 
 BRODERLANDS_BOT = -296659970
@@ -114,14 +111,16 @@ def main():
     code = shift_code()
     with open('shiftcode.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
-        print('hi')
         for rows in csv_reader:
-            if rows[0] != code:
-                print(rows[0])
+            csvfile.readlines()
+            if rows[0].strip() == code.strip():
+                break
+            if rows[0].strip() != code:
                 send_to_telegram(BRODERLANDS_BOT, text)
                 send_to_telegram(BRODERLANDS_BOT, code)
                 with open('shiftcode.csv', 'w') as csv_writer:
-                    rows[0] = csv_writer.write(code)
+                    rows[0] = csv_writer.write(code.strip())
+                    break
 
 
 if __name__ == '__main__':
