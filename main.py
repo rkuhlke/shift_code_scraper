@@ -99,9 +99,11 @@ def main():
         if refromat_expires > now_fromated and item.get("Code") != old_code:
             send_to_telegram(BRODERLANDS_BOT, message)
             send_to_telegram(BRODERLANDS_BOT, shift_code)
-        with open("shiftcode.txt", "w") as write:
-            write.write(item.get("Code"))
-
+            with open("shiftcode.txt", "w") as write:
+                write.write(item.get("Code"))
+            return
+    send_to_telegram(TEST, "No New Codes Available")
+    
 
 if __name__ == '__main__':
     main()
