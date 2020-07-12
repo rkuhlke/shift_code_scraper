@@ -103,7 +103,7 @@ def send_code():
             New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
             """
             shift_code = item.get('Code')
-            if refromat_expires < now_fromated and item.get("Code") not in data.get("Shift_Codes"):
+            if refromat_expires > now_fromated and item.get("Code") not in data.get("Shift_Codes"):
                 new_codes = {
                         "code": item.get("Code"),
                         "reward": item.get("Reward"),
@@ -114,8 +114,8 @@ def send_code():
                 data["Shift_Codes"].append(new_codes)
                 with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
                     json.dump(data, write)
-                send_to_telegram(BRODERLANDS_BOT, message)
-                send_to_telegram(BRODERLANDS_BOT, shift_code)          
+                send_to_telegram(TEST, message)
+                send_to_telegram(TEST, shift_code)          
         return
 
 def main():
