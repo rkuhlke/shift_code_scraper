@@ -1,2 +1,2 @@
-# shift_code_scraper
-grabs borderlands shift codes and sends the messages via telegram to client
+# Broderlands Shift Code Scraper
+Sends Borderlands 3 Shift Codes to the Telegram Client
