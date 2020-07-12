@@ -74,7 +74,7 @@ def send_to_telegram(group, text):
     return message
 
 
-def main():
+def send_code():
     """
     Desctiption:\n
     \t Main functionality that will compare
@@ -92,9 +92,7 @@ def main():
     with open("shiftcode.json", "r") as read:
         data = json.load(read)
     for shift_code in data.get("Shift_Codes"):
-        old_code = shift_code.get("code")
         for item in code:
-            # print(item.get("Code"))
             expires_date = item.get("Expires")[:-6]
             refromat_expires = datetime.datetime.strptime(
                 expires_date, "%d %b %Y %H:%M:%S")
@@ -102,9 +100,7 @@ def main():
             New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
             """
             shift_code = item.get('Code')
-            # print(shift_code)
-    
-            if refromat_expires > now_fromated and item.get("Code") != old_code:
+            if refromat_expires > now_fromated and item.get("Code") not in data.get("Shift_Codes"):
                 new_codes = {
                         "code": item.get("Code"),
                         "reward": item.get("Reward"),
@@ -112,15 +108,20 @@ def main():
                     }
                 if new_codes in data["Shift_Codes"]:
                     continue
-                print(new_codes)
                 data["Shift_Codes"].append(new_codes)
                 with open("shiftcode.json", "w") as write:
                         json.dump(data, write)
-                send_to_telegram(TEST, message)
-                send_to_telegram(TEST, shift_code)
+                send_to_telegram(BRODERLANDS_BOT, message)
+                send_to_telegram(BRODERLANDS_BOT, shift_code)          
         return
-    send_to_telegram(TEST, "No New Codes Available")
+
+def main():
+    send_code()
+
+    
 
 
 if __name__ == '__main__':
     main()
+        
+        
