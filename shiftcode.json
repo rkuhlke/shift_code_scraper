@@ -1,0 +1,24 @@
+{
+    "Shift_Codes": [
+        {
+            "code": "abc",
+            "reward": "None",
+            "exipres": "01 Jan 1970 12:00:00"
+        },
+        {
+            "code": "WHCJB-XF9C9-KFWXS-XJT3T-3RTKR",
+            "reward": "3 Gold Keys",
+            "expires": "06 Jul 2020 11:00:00 -0400"
+        },
+        {
+            "code": "CHWJ3-XKHCH-K6KXZ-XT3TT-6HB66",
+            "reward": "5 gold keys",
+            "expires": "28 Jun 2020 11:00:00 -0400"
+        },
+        {
+            "code": "WH5TT-CWZ5Z-WXWR9-63BB3-ZWBR3",
+            "reward": "3 gold keys",
+            "expires": "26 Jun 2020 11:00:00 -0400"
+        }
+    ]
+}
