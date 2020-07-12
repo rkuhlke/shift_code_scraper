@@ -1,12 +1,11 @@
 """
 Borderlands Web Scraper
 """
-import csv
+import datetime
 import json
+import os
 import requests
 import xmltodict
-import datetime
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,31 +15,42 @@ TEST = os.getenv("TEST")
 
 def get_data():
     """
-    builds the html parser
-    :return: soup
+    Description:\n
+    \t Pulls the data from the url
+    \t and converts the data from xml to json
+
+    Returns:\n
+    \t data(dict): json converted data
     """
-    xml = requests.get('https://shift.orcicorn.com/index.xml')
-    data = xmltodict.parse(xml.content)
-    j = json.dumps(data)
-    d = json.loads(j)
-    return d
+    request = requests.get('https://shift.orcicorn.com/index.xml')
+    response = xmltodict.parse(request.content)
+    parsed_response = json.dumps(response)
+    data = json.loads(parsed_response)
+    return data
 
 
 def parse_data():
-    l = []
+    """
+    Description:\n
+    \t Parses the data and creates a list
+
+    Returns:\n
+    \t content-list(list): list of dictionaires
+    """
+    content_list = []
     data = get_data()
     content = data.get("rss").get("channel")
     for item in content.get("item"):
         shift_archive = item.get("archive:shift")
         if shift_archive.get("shift:game") == "Borderlands 3":
-            d = {
+            item_dict = {
                 "Game": shift_archive.get("shift:game"),
                 "Reward": shift_archive.get("shift:reward"),
                 "Code": shift_archive.get("shift:code"),
                 "Expires": shift_archive.get("shift:expires")
             }
-            l.append(d)
-    return l
+            content_list.append(item_dict)
+    return content_list
 
 
 def send_to_telegram(group, text):
@@ -62,6 +72,17 @@ def send_to_telegram(group, text):
 
 
 def main():
+    """
+    Desctiption:\n
+    \t Main functionality that will compare
+    \t the old code and the experation data
+    \t will send the code if the expireation date
+    \t is greater than current time and if the old code
+    \t is different from new code
+
+    Returns:\n
+    \t None
+    """
     code = parse_data()
     with open("shiftcode.txt", "r") as read:
         old_code = read.read()
