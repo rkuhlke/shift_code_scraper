@@ -5,6 +5,7 @@ import datetime
 import json
 import os
 import requests
+import sys
 import xmltodict
 from dotenv import load_dotenv
 
@@ -22,7 +23,10 @@ def get_data():
     Returns:\n
     \t data(dict): json converted data
     """
-    request = requests.get('https://shift.orcicorn.com/index.xml')
+    try:
+        request = requests.get('https://shift.orcicorn.com/index.xml')
+    except Exception as e:
+        sys.exit(send_to_telegram(TEST, e))
     response = xmltodict.parse(request.content)
     parsed_response = json.dumps(response)
     data = json.loads(parsed_response)
@@ -44,7 +48,6 @@ def parse_data():
         shift_archive = item.get("archive:shift")
         if shift_archive.get("shift:game") == "Borderlands 3":
             item_dict = {
-                "Game": shift_archive.get("shift:game"),
                 "Reward": shift_archive.get("shift:reward"),
                 "Code": shift_archive.get("shift:code"),
                 "Expires": shift_archive.get("shift:expires")
@@ -84,26 +87,40 @@ def main():
     \t None
     """
     code = parse_data()
-    with open("shiftcode.txt", "r") as read:
-        old_code = read.read()
     now = datetime.datetime.now().strftime("%d %b %Y %H:%M:%S")
     now_fromated = datetime.datetime.strptime(now, "%d %b %Y %H:%M:%S")
-    for item in code:
-        expires_date = item.get("Expires")[:-6]
-        refromat_expires = datetime.datetime.strptime(
-            expires_date, "%d %b %Y %H:%M:%S")
-        message = f"""
-        New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
-        """
-        shift_code = f"{item.get('Code')}"
-        if refromat_expires > now_fromated and item.get("Code") != old_code:
-            send_to_telegram(BRODERLANDS_BOT, message)
-            send_to_telegram(BRODERLANDS_BOT, shift_code)
-            with open("shiftcode.txt", "w") as write:
-                write.write(item.get("Code"))
-            return
-    send_to_telegram(TEST, "No New Codes Available")
+    with open("shiftcode.json", "r") as read:
+        data = json.load(read)
+    for shift_code in data.get("Shift_Codes"):
+        old_code = shift_code.get("code")
+        for item in code:
+            # print(item.get("Code"))
+            expires_date = item.get("Expires")[:-6]
+            refromat_expires = datetime.datetime.strptime(
+                expires_date, "%d %b %Y %H:%M:%S")
+            message = f"""
+            New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
+            """
+            shift_code = item.get('Code')
+            # print(shift_code)
     
+            if refromat_expires > now_fromated and item.get("Code") != old_code:
+                new_codes = {
+                        "code": item.get("Code"),
+                        "reward": item.get("Reward"),
+                        "expires": item.get("Expires")
+                    }
+                if new_codes in data["Shift_Codes"]:
+                    continue
+                print(new_codes)
+                data["Shift_Codes"].append(new_codes)
+                with open("shiftcode.json", "w") as write:
+                        json.dump(data, write)
+                send_to_telegram(TEST, message)
+                send_to_telegram(TEST, shift_code)
+        return
+    send_to_telegram(TEST, "No New Codes Available")
+
 
 if __name__ == '__main__':
     main()
