@@ -5,7 +5,9 @@ import datetime
 import json
 import os
 import requests
+import random
 import sys
+import time
 import xmltodict
 from dotenv import load_dotenv
 
@@ -117,6 +119,8 @@ def send_code():
         return
 
 def main():
+    rand_time = random.randrange(28800)
+    time.sleep(rand_time)
     send_code()
 
     
