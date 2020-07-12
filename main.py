@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 BRODERLANDS_BOT = os.getenv("BRODERLANDS_BOT")
 TEST = os.getenv("TEST")
+PATH_TO_CODES = os.getenv("PATH_TO_CODES")
 
 
 def get_data():
@@ -89,7 +90,7 @@ def send_code():
     code = parse_data()
     now = datetime.datetime.now().strftime("%d %b %Y %H:%M:%S")
     now_fromated = datetime.datetime.strptime(now, "%d %b %Y %H:%M:%S")
-    with open("shiftcode.json", "r") as read:
+    with open(f"{PATH_TO_CODES}shiftcode.json", "r") as read:
         data = json.load(read)
     for shift_code in data.get("Shift_Codes"):
         for item in code:
@@ -100,7 +101,7 @@ def send_code():
             New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
             """
             shift_code = item.get('Code')
-            if refromat_expires > now_fromated and item.get("Code") not in data.get("Shift_Codes"):
+            if refromat_expires < now_fromated and item.get("Code") not in data.get("Shift_Codes"):
                 new_codes = {
                         "code": item.get("Code"),
                         "reward": item.get("Reward"),
@@ -109,8 +110,8 @@ def send_code():
                 if new_codes in data["Shift_Codes"]:
                     continue
                 data["Shift_Codes"].append(new_codes)
-                with open("shiftcode.json", "w") as write:
-                        json.dump(data, write)
+                with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
+                    json.dump(data, write)
                 send_to_telegram(BRODERLANDS_BOT, message)
                 send_to_telegram(BRODERLANDS_BOT, shift_code)          
         return
