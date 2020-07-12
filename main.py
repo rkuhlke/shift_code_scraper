@@ -2,86 +2,45 @@
 Borderlands Web Scraper
 """
 import csv
+import json
 import requests
-from bs4 import BeautifulSoup as bs
+import xmltodict
+import datetime
+import os
+from dotenv import load_dotenv
 
-BRODERLANDS_BOT = -296659970
-TEST = -380161856
+load_dotenv()
+BRODERLANDS_BOT = os.getenv("BRODERLANDS_BOT")
+TEST = os.getenv("TEST")
 
 
-def build_soup():
+def get_data():
     """
     builds the html parser
     :return: soup
     """
-    get_page = requests.get('https://shift.orcicorn.com/index.xml')
-    soup = bs(get_page.text, 'html.parser')
-
-    return soup
-
-
-def shift_code():
-    """
-    grabs shift code and returns the code
-    :return: code
-    """
-
-    # Parses through the description and pulls out
-    # necessary information needed to send the message
-    des = build_soup().item.description.text.split('<br>')
-    des_list = []
-
-    for item in des:
-        des_list.append(item)
-
-    # grabs info from the description from web page
-    code = des_list[3].split(':')
-    game_or_type = des_list[0].split(':')
-    reward = des_list[1].split(':')
-
-    # if the type is a vip code returns vip code
-    if game_or_type[1] == ' Borderlands 3':
-        string = f'{code[1]}'
-        return string
-
-    # if the type is a vip code returns vip code
-    elif game_or_type[1] == ' VIP Vault':
-        string = f'New VIP Code!!!\nReward: {reward[1]}'
-        return string
-
-    return ''
+    xml = requests.get('https://shift.orcicorn.com/index.xml')
+    data = xmltodict.parse(xml.content)
+    j = json.dumps(data)
+    d = json.loads(j)
+    return d
 
 
-def description():
-    """
-    grabs the description of the shift code
-    :return: string
-    """
-    # Parses through the description and pulls out
-    # necessary information needed to send the message
-    des = build_soup().item.description.text.split('<br>')
-    des_list = []
-    for item in des:
-        des_list.append(item)
-
-    # grabs info from the description from web page
-    expires = des_list[5].split(':', 1)
-    shift_code_reward = des_list[2].split(':')
-    vip_code_reward = des_list[1].split(':')
-    game_or_type = des_list[0].split(':')
-
-    # if the type is a shift code returns a shift code description
-    if game_or_type[1] == ' Borderlands 3':
-        string = f'New Shift Code!!!\nReward: {shift_code_reward[1]}\n'\
-            f'Expires: {expires[1]}\nShift Code: '
-        return string
-
-    # if the type is a vip code returns vip code description
-    elif game_or_type[1] == ' VIP Vault':
-        string = f'New VIP Code!!!\nReward: {vip_code_reward[1]}'
-        return string
-
-    return ''
+def parse_data():
+    l = []
+    data = get_data()
+    content = data.get("rss").get("channel")
+    for item in content.get("item"):
+        shift_archive = item.get("archive:shift")
+        if shift_archive.get("shift:game") == "Borderlands 3":
+            d = {
+                "Game": shift_archive.get("shift:game"),
+                "Reward": shift_archive.get("shift:reward"),
+                "Code": shift_archive.get("shift:code"),
+                "Expires": shift_archive.get("shift:expires")
+            }
+            l.append(d)
+    return l
 
 
 def send_to_telegram(group, text):
@@ -103,24 +62,24 @@ def send_to_telegram(group, text):
 
 
 def main():
-    """
-    main functionality
-    :return: None
-    """
-    text = description()
-    code = shift_code()
-    with open('shiftcode.csv', 'r') as csvfile:
-        csv_reader = csv.reader(csvfile, delimiter=',')
-        for rows in csv_reader:
-            csvfile.readlines()
-            if rows[0].strip() == code.strip():
-                break
-            if rows[0].strip() != code:
-                send_to_telegram(BRODERLANDS_BOT, text)
-                send_to_telegram(BRODERLANDS_BOT, code)
-                with open('shiftcode.csv', 'w') as csv_writer:
-                    rows[0] = csv_writer.write(code.strip())
-                    break
+    code = parse_data()
+    with open("shiftcode.txt", "r") as read:
+        old_code = read.read()
+    now = datetime.datetime.now().strftime("%d %b %Y %H:%M:%S")
+    now_fromated = datetime.datetime.strptime(now, "%d %b %Y %H:%M:%S")
+    for item in code:
+        expires_date = item.get("Expires")[:-6]
+        refromat_expires = datetime.datetime.strptime(
+            expires_date, "%d %b %Y %H:%M:%S")
+        message = f"""
+        New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
+        """
+        shift_code = f"{item.get('Code')}"
+        if refromat_expires > now_fromated and item.get("Code") != old_code:
+            send_to_telegram(BRODERLANDS_BOT, message)
+            send_to_telegram(BRODERLANDS_BOT, shift_code)
+        with open("shiftcode.txt", "w") as write:
+            write.write(item.get("Code"))
 
 
 if __name__ == '__main__':
