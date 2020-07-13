@@ -76,6 +76,17 @@ def send_to_telegram(group, text):
 
     return message
 
+def check_for_code():
+    code = parse_data()
+    with open(f"{PATH_TO_CODES}shiftcode.json", "r") as reader:
+        data = json.load(reader)
+    for codes in data.get("Shift_Codes"):
+        for item in code:
+            if item.get("Code") in codes.get("code"):
+                send_to_telegram(TEST, "No New Codes Available")
+                return 1
+    return 0
+
 
 def send_code():
     """
@@ -102,8 +113,8 @@ def send_code():
             message = f"""
             New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
             """
-            shift_code = item.get('Code')
-            if refromat_expires > now_fromated and item.get("Code") not in data.get("Shift_Codes"):
+            code_sent = item.get("Code")
+            if refromat_expires < now_fromated and item.get("Code") not in shift_code.get("code"):
                 new_codes = {
                         "code": item.get("Code"),
                         "reward": item.get("Reward"),
@@ -115,18 +126,16 @@ def send_code():
                 with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
                     json.dump(data, write)
                 send_to_telegram(TEST, message)
-                send_to_telegram(TEST, shift_code)          
-        return
+                send_to_telegram(TEST, code_sent)
+        
+    
 
 def main():
     rand_time = random.randrange(28800)
     time.sleep(rand_time)
-    send_code()
-
-    
+    if check_for_code() != 1:
+        send_code()
 
 
 if __name__ == '__main__':
     main()
-        
-        
