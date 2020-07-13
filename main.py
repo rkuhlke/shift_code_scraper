@@ -131,7 +131,7 @@ def send_code():
     
 
 def main():
-    rand_time = random.randrange(28800)
+    rand_time = random.randrange(7200)
     time.sleep(rand_time)
     if check_for_code() != 1:
         send_code()
