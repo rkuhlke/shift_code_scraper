@@ -5,24 +5,6 @@
             "Code": "TEST",
             "Reward": "TEST",
             "Exipres": "01 Jan 1970 12:00:00"
-        },
-        {
-            "Date_Published": "Thu, 02 Jul 2020 16:02:00",
-            "Code": "WHCJB-XF9C9-KFWXS-XJT3T-3RTKR",
-            "Reward": "3 Gold Keys",
-            "Expires": "06 Jul 2020 11:00:00"
-        },
-        {
-            "Date_Published": "Thu, 25 Jun 2020 19:44:52",
-            "Code": "CHWJ3-XKHCH-K6KXZ-XT3TT-6HB66",
-            "Reward": "5 gold keys",
-            "Expires": "28 Jun 2020 11:00:00"
-        },
-        {
-            "Date_Published": "Mon, 22 Jun 2020 14:50:15",
-            "Code": "WH5TT-CWZ5Z-WXWR9-63BB3-ZWBR3",
-            "Reward": "3 gold keys",
-            "Expires": "26 Jun 2020 11:00:00"
         }
     ]
 }

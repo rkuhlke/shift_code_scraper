@@ -108,15 +108,15 @@ def send_code():
                         "Reward": item.get("Reward"),
                         "Expires": item.get("Expires"),
                     }
-            
-            if new_codes in data["Shift_Codes"]:
-                continue
-            data["Shift_Codes"].append(new_codes)
-            send_to_telegram(BRODERLANDS_BOT, message)
-            send_to_telegram(BRODERLANDS_BOT, code_sent)
-            sent_code = True
-            with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
-                json.dump(data, write)
+                if new_codes in data["Shift_Codes"]:
+                    continue
+                data["Shift_Codes"].append(new_codes)
+                with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
+                    json.dump(data, write)
+                send_to_telegram(BRODERLANDS_BOT, message)
+                send_to_telegram(BRODERLANDS_BOT, code_sent)
+                sent_code = True
+
     if sent_code == False:
         send_to_telegram(TEST, "No New Codes Available")
                
@@ -124,8 +124,8 @@ def send_code():
     
 
 def main():
-    # rand_time = random.randrange(7200)
-    # time.sleep(rand_time)
+    rand_time = random.randrange(7200)
+    time.sleep(rand_time)
     send_code()
 
 
