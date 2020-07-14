@@ -15,6 +15,7 @@ load_dotenv()
 BRODERLANDS_BOT = os.getenv("BRODERLANDS_BOT")
 TEST = os.getenv("TEST")
 PATH_TO_CODES = os.getenv("PATH_TO_CODES")
+BOT_ID = os.getenv("BOT_ID")
 
 
 def get_data():
@@ -48,12 +49,14 @@ def parse_data():
     data = get_data()
     content = data.get("rss").get("channel")
     for item in content.get("item"):
-        shift_archive = item.get("archive:shift")
-        if shift_archive.get("shift:game") == "Borderlands 3":
+        if "Borderlands 3" in item.get("title"):
+            published_date = item.get("pubDate")[:-6]
+            shift_archive = item.get("archive:shift")
             item_dict = {
-                "Reward": shift_archive.get("shift:reward"),
+                "Date_Published": published_date,
                 "Code": shift_archive.get("shift:code"),
-                "Expires": shift_archive.get("shift:expires")
+                "Reward": shift_archive.get("shift:reward"),
+                "Expires": shift_archive.get("shift:expires")[:-6]
             }
             content_list.append(item_dict)
     return content_list
@@ -66,26 +69,9 @@ def send_to_telegram(group, text):
     :param text: allows you to choose what message to send
     :return: message
     """
-
     # sends a message to telegram
-    message = requests.get(
-        'https://api.telegram.org/bot924108836:AAHZykalHR8INIwplZERIwibUtDnUUdQN-8/'
-        f'sendMessage?chat_id={group}'
-        '=&text={}'.format(text)
-    )
-
+    message = requests.get(f"""https://api.telegram.org/bot{BOT_ID}/sendMessage?chat_id={group}=&text={text}""")
     return message
-
-def check_for_code():
-    code = parse_data()
-    with open(f"{PATH_TO_CODES}shiftcode.json", "r") as reader:
-        data = json.load(reader)
-    for codes in data.get("Shift_Codes"):
-        for item in code:
-            if item.get("Code") in codes.get("code"):
-                send_to_telegram(TEST, "No New Codes Available")
-                return 1
-    return 0
 
 
 def send_code():
@@ -100,41 +86,47 @@ def send_code():
     Returns:\n
     \t None
     """
+    sent_code = False
     code = parse_data()
     now = datetime.datetime.now().strftime("%d %b %Y %H:%M:%S")
     now_fromated = datetime.datetime.strptime(now, "%d %b %Y %H:%M:%S")
     with open(f"{PATH_TO_CODES}shiftcode.json", "r") as read:
         data = json.load(read)
-    for shift_code in data.get("Shift_Codes"):
-        for item in code:
-            expires_date = item.get("Expires")[:-6]
+    for item in code:
+        for codes in data.get("Shift_Codes"):
+            expires_date = item.get("Expires")
             refromat_expires = datetime.datetime.strptime(
                 expires_date, "%d %b %Y %H:%M:%S")
             message = f"""
-            New Borderlands 3 Shift Code:\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
+            New Borderlands 3 Shift Code!!!\n\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
             """
             code_sent = item.get("Code")
-            if refromat_expires < now_fromated and item.get("Code") not in shift_code.get("code"):
+            if refromat_expires > now_fromated and item.get("Code") not in codes.get("Code"):                
                 new_codes = {
-                        "code": item.get("Code"),
-                        "reward": item.get("Reward"),
-                        "expires": item.get("Expires")
+                        "Date_Published": item.get("Date_Published"),
+                        "Code": item.get("Code"),
+                        "Reward": item.get("Reward"),
+                        "Expires": item.get("Expires"),
                     }
-                if new_codes in data["Shift_Codes"]:
-                    continue
-                data["Shift_Codes"].append(new_codes)
-                with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
-                    json.dump(data, write)
-                send_to_telegram(TEST, message)
-                send_to_telegram(TEST, code_sent)
+            
+            if new_codes in data["Shift_Codes"]:
+                continue
+            data["Shift_Codes"].append(new_codes)
+            send_to_telegram(BRODERLANDS_BOT, message)
+            send_to_telegram(BRODERLANDS_BOT, code_sent)
+            sent_code = True
+            with open(f"{PATH_TO_CODES}shiftcode.json", "w") as write:
+                json.dump(data, write)
+    if sent_code == False:
+        send_to_telegram(TEST, "No New Codes Available")
+               
         
     
 
 def main():
-    rand_time = random.randrange(7200)
-    time.sleep(rand_time)
-    if check_for_code() != 1:
-        send_code()
+    # rand_time = random.randrange(7200)
+    # time.sleep(rand_time)
+    send_code()
 
 
 if __name__ == '__main__':
