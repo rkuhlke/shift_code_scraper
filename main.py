@@ -118,18 +118,23 @@ def send_code():
                 sent_code = True
 
     if sent_code == False:
-        send_to_telegram(TEST, "No New Codes Available")     
+        send_to_telegram(TEST, "No New Codes Available")
+        return "Fail"
+    return
         
     
 
 def main():
     rand_time = random.randrange(7200)
-    time.sleep(rand_time)
-    send_code()
+    # time.sleep(rand_time)
     date = datetime.datetime.date(datetime.datetime.now())
     now = datetime.datetime.now()
-    with open(f"{PATH_TO_CODES}logs/Shift_Bot_Logs_{date}.txt", "w+") as writer:
-        writer.write(f"Time Ran: {now}")
+    if send_code() == "Fail":
+        with open(f"{PATH_TO_CODES}logs/Shift_Bot_Logs_{date}.txt", "w+") as writer:
+            writer.write(f"Time Ran: {now}\nStatus: Fail\nRandom Time: {rand_time}")
+    else:
+        with open(f"{PATH_TO_CODES}logs/Shift_Bot_Logs_{date}.txt", "w+") as writer:
+            writer.write(f"Time Ran: {now}\nStatus: Success\nRandom Time: {rand_time}")
 
 
 if __name__ == '__main__':
