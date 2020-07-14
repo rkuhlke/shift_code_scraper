@@ -126,7 +126,7 @@ def send_code():
 
 def main():
     rand_time = random.randrange(7200)
-    # time.sleep(rand_time)
+    time.sleep(rand_time)
     date = datetime.datetime.date(datetime.datetime.now())
     now = datetime.datetime.now()
     if send_code() == "Fail":
