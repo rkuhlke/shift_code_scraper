@@ -131,10 +131,10 @@ def main():
     now = datetime.datetime.now()
     if send_code() == "Fail":
         with open(f"{PATH_TO_CODES}logs/Shift_Bot_Logs_{date}.txt", "w+") as writer:
-            writer.write(f"Time Ran: {now}\nStatus: Fail\nRandom Time: {rand_time}")
+            writer.write(f"Time Ran: {now}\nStatus: Fail\nRandom Time: {rand_time} seconds")
     else:
         with open(f"{PATH_TO_CODES}logs/Shift_Bot_Logs_{date}.txt", "w+") as writer:
-            writer.write(f"Time Ran: {now}\nStatus: Success\nRandom Time: {rand_time}")
+            writer.write(f"Time Ran: {now}\nStatus: Success\nRandom Time: {rand_time} seconds")
 
 
 if __name__ == '__main__':
