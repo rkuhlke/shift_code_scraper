@@ -16,7 +16,7 @@ Add the group id to your `.env` file as following:
 
 * `BORDERLANDS_BOT` = Your main group id where you want to send your codes to
 * `TEST`            = Group Id to send fail notifications etc
-* `PATH_TO_CODES    = Path to JSON file containing `shift_codes.json` and `logs/`
+* `PATH_TO_CODES`    = Path to JSON file containing `shift_codes.json` and `logs/`
 * `BOT_ID`          = Telegram Bot ID
 
 ## Maintatiners
