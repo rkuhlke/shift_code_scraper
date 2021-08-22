@@ -54,9 +54,10 @@ def parse_data():
             shift_archive = item.get("archive:shift")
             item_dict = {
                 "Date_Published": published_date,
+                "Platform": shift_archive.get("shift:platform"),
                 "Code": shift_archive.get("shift:code"),
                 "Reward": shift_archive.get("shift:reward"),
-                "Expires": shift_archive.get("shift:expires")[:-6]
+                "Expires": shift_archive.get("shift:expires")
             }
             content_list.append(item_dict)
     return content_list
@@ -104,6 +105,7 @@ def send_code():
             if refromat_expires > now_fromated and item.get("Code") not in codes.get("Code"):                
                 new_codes = {
                         "Date_Published": item.get("Date_Published"),
+                        "Platform": item.get("Platform"),
                         "Code": item.get("Code"),
                         "Reward": item.get("Reward"),
                         "Expires": item.get("Expires"),
@@ -126,7 +128,7 @@ def send_code():
 
 def main():
     rand_time = random.randrange(7200)
-    time.sleep(rand_time)
+    time.sleep(rand_time) # Comment out for testing purposes. Sets a random time to start calling website
     date = datetime.datetime.date(datetime.datetime.now())
     now = datetime.datetime.now()
     if send_code() == "Fail":
