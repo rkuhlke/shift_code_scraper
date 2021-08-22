@@ -57,7 +57,7 @@ def parse_data():
                 "Platform": shift_archive.get("shift:platform"),
                 "Code": shift_archive.get("shift:code"),
                 "Reward": shift_archive.get("shift:reward"),
-                "Expires": shift_archive.get("shift:expires")
+                "Expires": shift_archive.get("shift:expires")[:-6]
             }
             content_list.append(item_dict)
     return content_list
@@ -99,7 +99,7 @@ def send_code():
             refromat_expires = datetime.datetime.strptime(
                 expires_date, "%d %b %Y %H:%M:%S")
             message = f"""
-            New Borderlands 3 Shift Code!!!\n\nReward: {item.get("Reward")}\nExpires: {expires_date}\nCode:
+            New Borderlands 3 Shift Code!!!\n\nReward: {item.get("Reward")}\nPlatform: {item.get("Platform")}\nExpires: {expires_date}\nCode:
             """
             code_sent = item.get("Code")
             if refromat_expires > now_fromated and item.get("Code") not in codes.get("Code"):                
@@ -128,7 +128,7 @@ def send_code():
 
 def main():
     rand_time = random.randrange(7200)
-    time.sleep(rand_time) # Comment out for testing purposes. Sets a random time to start calling website
+    # time.sleep(rand_time) # Comment out for testing purposes. Sets a random time to start calling website
     date = datetime.datetime.date(datetime.datetime.now())
     now = datetime.datetime.now()
     if send_code() == "Fail":
