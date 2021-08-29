@@ -4,18 +4,22 @@ Borderlands Web Scraper
 import datetime
 import json
 import os
+import pandas as pd
 import requests
 import random
 import sys
 import time
 import xmltodict
 from dotenv import load_dotenv
+from upload_to_shift import Upload2Shift
 
 load_dotenv()
 BRODERLANDS_3_CODES = os.getenv("BRODERLANDS_3_CODES")
 TEST = os.getenv("TEST")
 BOT_ID = os.getenv("BOT_ID")
 BORDERLANDS_SHIFT_CODES = os.getenv("BORDERLANDS_SHIFT_CODES")
+USERNAME = os.getenv("USERNAME")
+PASSWORD = os.getenv("PASSWORD")
 
 
 def getRawShiftData():
@@ -30,10 +34,52 @@ def parseShiftData(data):
     with open("./shiftcode.json") as reader:
         stored_codes = json.loads(reader.read())
     mostRecentStoredCode = stored_codes.get("Shift_Codes")[-1]
-    print(mostRecentStoredCode)
-    content = data.get("rss").get("channel")
-    # for item in content.get("item"):
-    #     print(item)
+    lastPublishedDate = pd.to_datetime(mostRecentStoredCode.get("Published"))
+    content = data.get("rss").get("channel").get("item")
+    new_codes = False
+    for item in reversed(content):
+        pubDate = pd.to_datetime(item.get("pubDate")[:-6])
+        game  = item.get("archive:shift").get("shift:game")
+        if pubDate > lastPublishedDate and "Borderlands" in game:
+            sendCode(item)
+            new_codes = True
+            item_dict = {
+                "Game": game,
+                "Platform": item.get("archive:shift").get("shift:platform"),
+                "Reward": item.get("archive:shift").get("shift:reward"),
+                "Code": item.get("archive:shift").get("shift:code"),
+                "Published": str(pubDate),
+                "Expires": str(pd.to_datetime(item.get("archive:shift").get("shift:expires")[:-6]))
+            }
+            stored_codes["Shift_Codes"].append(item_dict)
+    if new_codes == True:
+        pass
+        # with open("./shiftcode.json", "w+") as writer:
+        #     writer.write(json.dumps(stored_codes))
+    else:
+        send2Telegram(TEST, "No New Codes")
+
+
+def sendCode(item):
+    print(item)
+    upload2Shift(item)
+    # game = item.get("archive:shift").get("shift:game")
+    # platform = item.get("archive:shift").get("shift:platform")
+    # reward = item.get("archive:shift").get("shift:reward")
+    # code = item.get("archive:shift").get("shift:code")
+    # expires = item.get("archive:shift").get("shift:expires")[:-6]
+    # message = f"New {game} Code!\n\nPlatform: {platform}\nReward: {reward}\nExpires: {expires}"
+    # if game == "Borderlands 3":
+    #     send2Telegram(TEST, message)
+    #     send2Telegram(TEST, code)
+    # else:
+    #     send2Telegram(BORDERLANDS_SHIFT_CODES, message)
+    #     send2Telegram(BORDERLANDS_SHIFT_CODES, code)
+        
+
+def upload2Shift(data):
+    srv = Upload2Shift(USERNAME, PASSWORD)
+    srv.uploadCode(data)
 
 
 def send2Telegram(group, text):
@@ -44,8 +90,7 @@ def send2Telegram(group, text):
     :return: message
     """
     # sends a message to telegram
-    message = requests.get(f"""https://api.telegram.org/bot{BOT_ID}/sendMessage?chat_id={group}=&text={text}""")
-    return message
+    return requests.get(f"""https://api.telegram.org/bot{BOT_ID}/sendMessage?chat_id={group}=&text={text}""")
 
 
 def main():

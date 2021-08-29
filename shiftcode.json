@@ -1,13 +1,13 @@
 {
     "Shift_Codes": [
         {
-            "Date_Published": "01 Jan 1970 12:00:00",
+            "Published": "01 Jan 1970 12:00:00",
             "Code": "TEST",
             "Reward": "TEST",
             "Exipres": "01 Jan 1970 12:00:00"
         },
         {
-            "Date_Published": "Thu, 19 Aug 2021 10:49:00",
+            "Published": "Thu, 19 Aug 2021 10:49:00",
             "Platform": "Universal",
             "Code": "WSKBJ-X99R9-WFCXH-XBB3B-3ZRZZ",
             "Reward": "3 Gold Keys",
