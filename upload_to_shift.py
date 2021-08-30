@@ -1,39 +1,53 @@
 import bs4
 import requests
 
+base_url = "https://shift.gearboxsoftware.com"
 
 class Upload2Shift:
     def __init__(self, username, password):
         self.username = username
-        self.password = password    
-        def connect(self):
-            headers = {"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"}
-            session = requests.session()
-            agent = session.get("https://shift.gearboxsoftware.com/home")
+        self.password = password
+        self.session = requests.session()
+        self.connect()
+    
+    def connect(self):
+            agent = self.session.get(f"{base_url}/home")
             token = getCSRFToken(agent.text)
-            data = {"authenticity_token": token, "user[email]": username, "user[password]": password, "commit": "SIGN IN", "redirect_to": "https://shift.gearboxsoftware.com/rewards"}
-            session.post("https://shift.gearboxsoftware.com/sessions", data=data, headers=headers)
-            return session
-        self.session = connect(self)
+            data = {"authenticity_token": token, "user[email]": self.username, "user[password]": self.password}
+            headers = {"Referer": f"{base_url}/home"}
+            self.session.post(f"{base_url}/sessions", data=data, headers=headers)
     
     def uploadCode(self, item):
-        resp1 = self.session.get("https://shift.gearboxsoftware.com/rewards")
-        token = getCSRFToken(resp1.text)
-        print(token)
+        resp = self.session.get(f"{base_url}/rewards")
+        token = getCSRFToken(resp.text)
+        headers = {
+            "x-requested-with": "XMLHttpRequest",
+            "x-csrf-token": token
+            }
         code = item.get("archive:shift").get("shift:code")
-        service = item.get("archive:shift").get("shift:platform")
-        print(service)
-        if service.lower() == "universal":
-            servicelist = ["steam", "xboxlive"]
-            for service in servicelist:
-                data = {
-                    "authenticity_token": token,
-                    "archway_code_redemption[code]": code,
-                    "archway_code_redemption[service]": service
-                }
-                resp = self.session.post("https://shift.gearboxsoftware.com/code_redemptions", data=data)
-                print(resp.status_code)
-    
+        resp2 = self.session.get(f"{base_url}/entitlement_offer_codes?code={code}", headers=headers)
+        soup = bs4.BeautifulSoup(resp2.text, "html.parser")
+        forms = soup.find_all("form")
+        for form in forms:
+            acr_code = form.find("input", {"name": "archway_code_redemption[code]"})["value"]
+            acr_check = form.find("input", {"name": "archway_code_redemption[check]"})["value"]
+            acr_service = form.find("input", {"name": "archway_code_redemption[service]"})["value"]
+            acr_title = form.find("input", {"name": "archway_code_redemption[title]"})["value"]
+            commit = form.find("input", {"name": "commit"})["value"]
+            data = {
+                "authenticity_token": token,
+                "archway_code_redemption[code]": acr_code,
+                "archway_code_redemption[check]": acr_check,
+                "archway_code_redemption[service]": acr_service,
+                "archway_code_redemption[title]": acr_title,
+                "commit": commit
+            }
+            post_headers = {"Referer": f"{base_url}/new"}
+            s = self.session.post(f"{base_url}/code_redemptions", data=data, headers=post_headers)
+            print(s.text)
+            break
+            
+            
 
 def getCSRFToken(text):
     soup = bs4.BeautifulSoup(text, "html.parser")

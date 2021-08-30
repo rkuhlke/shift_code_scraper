@@ -1,7 +1,8 @@
 """
 Borderlands Web Scraper
 """
-import datetime
+import boto3
+import base64
 import json
 import os
 import pandas as pd
@@ -12,14 +13,14 @@ import time
 import xmltodict
 from dotenv import load_dotenv
 from upload_to_shift import Upload2Shift
+from botocore.exceptions import ClientError
 
 load_dotenv()
+
 BRODERLANDS_3_CODES = os.getenv("BRODERLANDS_3_CODES")
 TEST = os.getenv("TEST")
 BOT_ID = os.getenv("BOT_ID")
 BORDERLANDS_SHIFT_CODES = os.getenv("BORDERLANDS_SHIFT_CODES")
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
 
 
 def getRawShiftData():
@@ -42,27 +43,27 @@ def parseShiftData(data):
         game  = item.get("archive:shift").get("shift:game")
         if pubDate > lastPublishedDate and "Borderlands" in game:
             sendCode(item)
-            new_codes = True
-            item_dict = {
-                "Game": game,
-                "Platform": item.get("archive:shift").get("shift:platform"),
-                "Reward": item.get("archive:shift").get("shift:reward"),
-                "Code": item.get("archive:shift").get("shift:code"),
-                "Published": str(pubDate),
-                "Expires": str(pd.to_datetime(item.get("archive:shift").get("shift:expires")[:-6]))
-            }
-            stored_codes["Shift_Codes"].append(item_dict)
-    if new_codes == True:
-        pass
-        # with open("./shiftcode.json", "w+") as writer:
-        #     writer.write(json.dumps(stored_codes))
-    else:
-        send2Telegram(TEST, "No New Codes")
+    #         new_codes = True
+    #         item_dict = {
+    #             "Game": game,
+    #             "Platform": item.get("archive:shift").get("shift:platform"),
+    #             "Reward": item.get("archive:shift").get("shift:reward"),
+    #             "Code": item.get("archive:shift").get("shift:code"),
+    #             "Published": str(pubDate),
+    #             "Expires": str(pd.to_datetime(item.get("archive:shift").get("shift:expires")[:-6]))
+    #         }
+    #         stored_codes["Shift_Codes"].append(item_dict)
+    # if new_codes == True:
+    #     pass
+    #     # with open("./shiftcode.json", "w+") as writer:
+    #     #     writer.write(json.dumps(stored_codes))
+    # else:
+    #     send2Telegram(TEST, "No New Codes")
 
 
 def sendCode(item):
-    print(item)
-    upload2Shift(item)
+    pass
+    # upload2Shift(item)
     # game = item.get("archive:shift").get("shift:game")
     # platform = item.get("archive:shift").get("shift:platform")
     # reward = item.get("archive:shift").get("shift:reward")
@@ -75,11 +76,6 @@ def sendCode(item):
     # else:
     #     send2Telegram(BORDERLANDS_SHIFT_CODES, message)
     #     send2Telegram(BORDERLANDS_SHIFT_CODES, code)
-        
-
-def upload2Shift(data):
-    srv = Upload2Shift(USERNAME, PASSWORD)
-    srv.uploadCode(data)
 
 
 def send2Telegram(group, text):
@@ -93,7 +89,62 @@ def send2Telegram(group, text):
     return requests.get(f"""https://api.telegram.org/bot{BOT_ID}/sendMessage?chat_id={group}=&text={text}""")
 
 
+def get_secret(secret_name):
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    # In this sample we only handle the specific exceptions for the 'GetSecretValue' API.
+    # See https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+    # We rethrow the exception by default.
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+        print(get_secret_value_response)
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'DecryptionFailureException':
+            # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
+            # Deal with the exception here, and/or rethrow at your discretion.
+            raise e
+        elif e.response['Error']['Code'] == 'InternalServiceErrorException':
+            # An error occurred on the server side.
+            # Deal with the exception here, and/or rethrow at your discretion.
+            raise e
+        elif e.response['Error']['Code'] == 'InvalidParameterException':
+            # You provided an invalid value for a parameter.
+            # Deal with the exception here, and/or rethrow at your discretion.
+            raise e
+        elif e.response['Error']['Code'] == 'InvalidRequestException':
+            # You provided a parameter value that is not valid for the current state of the resource.
+            # Deal with the exception here, and/or rethrow at your discretion.
+            raise e
+        elif e.response['Error']['Code'] == 'ResourceNotFoundException':
+            # We can't find the resource that you asked for.
+            # Deal with the exception here, and/or rethrow at your discretion.
+            raise e
+    else:
+        # Decrypts secret using the associated KMS CMK.
+        # Depending on whether the secret is a string or binary, one of these fields will be populated.
+        if 'SecretString' in get_secret_value_response:
+            return json.loads(get_secret_value_response['SecretString'])
+        else:
+            return json.loads(base64.b64decode(get_secret_value_response['SecretBinary']))
+
+
+
+
 def main():
+    bobby = get_secret("bobby-gearbox")
+    phillip = get_secret("phillip-gearbox")
+    print(bobby)
+    print(phillip)
     getRawShiftData()
 
 
