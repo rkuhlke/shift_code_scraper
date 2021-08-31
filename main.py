@@ -88,6 +88,7 @@ def send2Telegram(group, text):
 
 
 def main():
+    time.sleep(random.randint(0, 7200))
     getRawShiftData()
 
 
