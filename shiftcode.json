@@ -1,17 +1,1 @@
-{
-    "Shift_Codes": [
-        {
-            "Published": "01 Jan 1970 12:00:00",
-            "Code": "TEST",
-            "Reward": "TEST",
-            "Exipres": "01 Jan 1970 12:00:00"
-        },
-        {
-            "Published": "Thu, 19 Aug 2021 10:49:00",
-            "Platform": "Universal",
-            "Code": "WSKBJ-X99R9-WFCXH-XBB3B-3ZRZZ",
-            "Reward": "3 Gold Keys",
-            "Expires": "26 Aug 2021 11:00:00"
-        }
-    ]
-}
+{"Shift_Codes": [{"Published": "01 Jan 1970 12:00:00", "Code": "TEST", "Reward": "TEST", "Exipres": "01 Jan 1970 12:00:00"}, {"Published": "Thu, 19 Aug 2021 10:49:00", "Platform": "Universal", "Code": "WSKBJ-X99R9-WFCXH-XBB3B-3ZRZZ", "Reward": "3 Gold Keys", "Expires": "26 Aug 2021 11:00:00"}, {"Game": "Borderlands: Pre-Sequel", "Platform": "Universal", "Reward": "5 gold keys", "Code": "5CKBB-RRSCX-FSJRT-3BBTB-H3H6C", "Published": "2021-08-20 11:00:10", "Expires": "2021-08-31 00:59:01"}, {"Game": "Borderlands: Pre-Sequel", "Platform": "Universal", "Reward": "5 Gold Keys", "Code": "WK5TB-HRHCF-6S363-JBB3J-5HT6K", "Published": "2021-08-20 11:10:00", "Expires": "2021-08-30 23:59:00"}, {"Game": "Borderlands 1", "Platform": "Universal", "Reward": "5 gold keys", "Code": "53WTB-53BCC-CBRBZ-JJJ3T-KBBRK", "Published": "2021-08-27 13:00:13", "Expires": "2021-09-07 00:59:01"}, {"Game": "Borderlands 1", "Platform": "Universal", "Reward": "5 Gold Keys", "Code": "WT5JJ-3BJW5-KJRTZ-J3BJJ-XBKXB", "Published": "2021-08-27 13:27:00", "Expires": "2021-09-06 00:01:00"}, {"Game": "Borderlands 3", "Platform": "Universal", "Reward": "3 Gold Keys", "Code": "5SK3B-S9HFH-CR56Z-6TJJT-CSR5B", "Published": "2021-08-27 15:47:00", "Expires": "2021-09-09 11:00:00"}]}

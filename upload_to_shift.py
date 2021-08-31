@@ -17,14 +17,13 @@ class Upload2Shift:
             headers = {"Referer": f"{base_url}/home"}
             self.session.post(f"{base_url}/sessions", data=data, headers=headers)
     
-    def uploadCode(self, item):
+    def uploadCode(self, code):
         resp = self.session.get(f"{base_url}/rewards")
         token = getCSRFToken(resp.text)
         headers = {
             "x-requested-with": "XMLHttpRequest",
             "x-csrf-token": token
             }
-        code = item.get("archive:shift").get("shift:code")
         resp2 = self.session.get(f"{base_url}/entitlement_offer_codes?code={code}", headers=headers)
         soup = bs4.BeautifulSoup(resp2.text, "html.parser")
         forms = soup.find_all("form")
@@ -43,10 +42,7 @@ class Upload2Shift:
                 "commit": commit
             }
             post_headers = {"Referer": f"{base_url}/new"}
-            s = self.session.post(f"{base_url}/code_redemptions", data=data, headers=post_headers)
-            print(s.text)
-            break
-            
+            self.session.post(f"{base_url}/code_redemptions", data=data, headers=post_headers)            
             
 
 def getCSRFToken(text):
