@@ -9,10 +9,8 @@ import random
 import sys
 import time
 import xmltodict
-from dotenv import load_dotenv
 from upload_to_shift import Upload2Shift
 
-load_dotenv()
 
 BORDERLANDS_CODES = os.getenv("BORDERLANDS_CODES")
 TEST = os.getenv("TEST")
