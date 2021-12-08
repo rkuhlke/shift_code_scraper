@@ -8,9 +8,9 @@ class Upload2Shift:
         self.username = username
         self.password = password
         self.session = requests.session()
-        self.connect()
+        self.__connect__()
     
-    def connect(self):
+    def __connect__(self):
             agent = self.session.get(f"{base_url}/home")
             token = getCSRFToken(agent.text)
             data = {"authenticity_token": token, "user[email]": self.username, "user[password]": self.password}
@@ -42,7 +42,8 @@ class Upload2Shift:
                 "commit": commit
             }
             post_headers = {"Referer": f"{base_url}/new"}
-            self.session.post(f"{base_url}/code_redemptions", data=data, headers=post_headers)            
+            self.session.post(f"{base_url}/code_redemptions", data=data, headers=post_headers)
+        return         
             
 
 def getCSRFToken(text):
