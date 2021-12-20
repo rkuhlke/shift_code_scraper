@@ -1,12 +1,16 @@
 FROM public.ecr.aws/lambda/python:3.8
 
-WORKDIR /utilities/aws
+COPY . .
 
-RUN pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+RUN python3 -m pip install --upgrade pip
 
-WORKDIR /utilities/messaging
+WORKDIR /utilities/aws/
+COPY requirements.txt .
+RUN python3 -m pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
-RUN pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+WORKDIR /utilities/messaging/
+COPY requirements.txt .
+RUN python3 -m pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
 WORKDIR /
 
